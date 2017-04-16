@@ -1,7 +1,6 @@
 package boot.controller;
 
 import boot.model.PageDetails;
-import boot.model.PageDetailsResponse;
 import boot.service.PageDetailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
