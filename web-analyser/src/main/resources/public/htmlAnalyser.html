@@ -2,22 +2,127 @@
 <html>
 <head lang="en">
     <meta charset="UTF-8">
-    <title></title>
+    <title>HTML Analyser</title>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/additional-methods.min.js"></script>
 </head>
 <body>
+<div align="center">
+	<h1>HTML Analyser</h1>
+</div>
+<div>
 <form id="queryPageDetails" method="get" action="/pageDetails">
     <div align="center">
         <input type="text" name="url" id="url" size="50">
-        <button type="submit" name="analyse">Analyse</button>
+	</div>
+	<br/>
+	<div align="center">
+        <button type="button" name="analysePage" id="analysePage">Analyse HTML</button>
+        <button type="button" name="analyseLinks" id="analyseLinks">Analyse Links</button>
     </div>
 </form>
+</div>
 <script>
     $(document).ready(function() {
-	$('#queryPageDetails').on('submit',
+
+	function callAction(action, callback) {
+		var url = $('#url').val();
+		jQuery.validator.setDefaults({
+			debug: true,
+			success: "valid"
+		});
+		$( "#queryPageDetails" ).validate({
+		  rules: {
+			field: {
+			  required: true,
+			  url: true
+			}
+		  }
+		});
+		var data = 'url=' + encodeURIComponent(url);
+		$.ajax({
+			url : action,
+			data : data,
+			type : "GET",
+
+			success : function(response) {
+
+				console.log(response);
+				callback(response);
+			},
+			error : function(xhr, status, error) {
+				alert(xhr.responseText);
+			}
+		});
+	};
+
+	$('#analysePage').on('click', function(e) {
+		e.preventDefault();
+		callAction('/pageDetails', function (response) {
+			var list = "";
+			$.each(response, function(key, value) {
+				if(typeof value == 'object'){
+					var innerList = "<ul>";
+					$.each(value, function(ckey, cvalue) {
+					innerList += "<li><b> " + ckey + ": </b>" + cvalue + "</li>";
+					})
+					list += "<li><b> " + key + ": </b>" + innerList + "</ul>" + "</li>";
+				}else {
+				list += "<li><b> " + key + ": </b>" + value + "</li>";
+				}
+				//alert(key + ' is ' + value);
+			});
+			var ul = $('<ul id="response">').appendTo('body');
+			/*var list = "<li> <b>Title:</b> " + response.title + "</li>";
+			list += "<li><b> HTML version: </b>" + response.htmlVersion + "</li>";
+			var containsLogin = response.containsLogin ? "Yes" : "No";
+			list += "<li><b> Contains Login Form: </b>" + containsLogin + "</li>";*/
+			$('#response').append(list);
+		});
+	});
+
+	$('#analyseLinks').on('click', function(e) {
+		e.preventDefault();
+		callAction('/linkDetails', function (response) {
+			var list = "";
+			$.each(response, function(key, value) {
+				if(typeof value == 'object'){
+					var innerList = "<ul>";
+					$.each(value, function(ckey, cvalue) {
+					innerList += "<li><b> " + ckey + ": </b>" + cvalue + "</li>";
+					})
+					list += "<li><b> " + key + ": </b>" + innerList + "</ul>" + "</li>";
+				}else {
+				list += "<li><b> " + key + ": </b>" + value + "</li>";
+				}
+				//alert(key + ' is ' + value);
+			});
+			var ul = $('<ul id="response">').appendTo('body');
+			/*var list = "<li> <b>Title:</b> " + response.title + "</li>";
+			list += "<li><b> HTML version: </b>" + response.htmlVersion + "</li>";
+			var containsLogin = response.containsLogin ? "Yes" : "No";
+			list += "<li><b> Contains Login Form: </b>" + containsLogin + "</li>";*/
+			$('#response').append(list);
+		});
+	});
+	/*$('#queryPageDetails').on('submit',
 
 		function(event) {
 			var url = $('#url').val();
+			if(url.length > 0){
+			jQuery.validator.setDefaults({
+  				debug: true,
+  				success: "valid"
+			});
+			$( "#myform" ).validate({
+			  rules: {
+				field: {
+				  required: true,
+				  url: true
+				}
+			  }
+			});
 			var data = 'url='
 					+ encodeURIComponent(url);
 			$.ajax({
@@ -33,8 +138,9 @@
 					alert(xhr.responseText);
 				}
 			});
+			}
 			return false;
-		});
+		});*/
 
 		function displayResponse(response) {
 			var list = "";
