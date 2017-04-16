@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+</head>
+<body>
+<form id="queryPageDetails" method="get" action="/pageDetails">
+    <div>
+        <input type="text" name="url" id="url">
+    </div>
+    <div>
+        <button type="submit" name="submit">Submit</button>
+    </div>
+</form>
+<script>
+    $(document).ready(function() {
+	$('#queryPageDetails').on('submit',
+
+		function(event) {
+			var url = $('#url').val();
+			var data = 'url='
+					+ encodeURIComponent(url);
+			$.ajax({
+				url : $("#queryPageDetails").attr("action"),
+				data : data,
+				type : "GET",
+
+				success : function(response) {
+					console.log(response);
+					drawTable( response );
+				},
+				error : function(xhr, status, error) {
+					alert(xhr.responseText);
+				}
+			});
+			return false;
+		});
+
+		function drawTable(response) {
+			var ul = $('<ul id="response">').appendTo('body');
+			var txt = "<li> Title: " + response.title + "</li>";
+			txt += "<li> HTML version: " + response.htmlVersion + "</li>";
+			var containsLogin = response.containsLogin ? "Yes" : "No";
+			txt += "<li> Contains Login Form: " + containsLogin + "</li>";
+			$('#response').append(txt);
+			$(response.items).each(function(index, item) {
+				alert('list');
+    			ul.append(
+        		$(document.createElement('li')).text(item)
+    			);
+			});
+		};
+	});
+</script>
+</body>
+</html>
