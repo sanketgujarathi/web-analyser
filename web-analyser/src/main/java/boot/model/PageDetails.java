@@ -1,10 +1,12 @@
 package boot.model;
 
+import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Map;
 
 /**
  * Created by sanketg on 4/15/2017.
  */
+@XmlRootElement(name = "response")
 public class PageDetails {
 
     private String title;
