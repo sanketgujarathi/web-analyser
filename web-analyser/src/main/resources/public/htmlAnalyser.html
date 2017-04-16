@@ -29,7 +29,7 @@
 
 				success : function(response) {
 					console.log(response);
-					drawTable( response );
+					displayResponse( response );
 				},
 				error : function(xhr, status, error) {
 					alert(xhr.responseText);
@@ -38,12 +38,12 @@
 			return false;
 		});
 
-		function drawTable(response) {
+		function displayResponse(response) {
 			var ul = $('<ul id="response">').appendTo('body');
-			var txt = "<li> Title: " + response.title + "</li>";
-			txt += "<li> HTML version: " + response.htmlVersion + "</li>";
+			var txt = "<li> <b>Title:</b> " + response.title + "</li>";
+			txt += "<li><b> HTML version: </b>" + response.htmlVersion + "</li>";
 			var containsLogin = response.containsLogin ? "Yes" : "No";
-			txt += "<li> Contains Login Form: " + containsLogin + "</li>";
+			txt += "<li><b> Contains Login Form: </b>" + containsLogin + "</li>";
 			$('#response').append(txt);
 			$(response.items).each(function(index, item) {
 				alert('list');
