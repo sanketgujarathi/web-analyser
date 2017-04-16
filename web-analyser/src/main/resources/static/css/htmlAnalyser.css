@@ -1,0 +1,7 @@
+li {
+  border-bottom: 1px solid #ccc;
+}
+
+li:last-child {
+  border: none;
+}
