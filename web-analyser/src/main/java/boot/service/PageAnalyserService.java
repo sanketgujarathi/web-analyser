@@ -19,7 +19,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Service
-public class PageDetailService {
+public class PageAnalyserService {
 
     @Autowired
     private PageDao pageDao;
@@ -81,7 +81,7 @@ public class PageDetailService {
         return "".equals(htmlVersion) ? "HTML5" : htmlVersion;
     }
 
-    public Map<String, Boolean> getLinkDetails(String url) throws IOException, MalformedURLException {
+    public Map<String, Boolean> getLinkDetails(String url) throws IOException {
         final Document document = pageDao.getPage(url);
         return document
                 .select("a[href]")
@@ -90,7 +90,6 @@ public class PageDetailService {
                     try {
                         return new URL(p.attr("href"));
                     } catch (MalformedURLException e) {
-                        e.printStackTrace();
                         return null;
                     }
                 })

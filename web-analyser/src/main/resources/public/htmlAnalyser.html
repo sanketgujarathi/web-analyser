@@ -12,7 +12,7 @@
 	<h1>HTML Analyser</h1>
 </div>
 <div>
-<form id="queryPageDetails" method="get" action="/pageDetails">
+<form id="queryPageDetails" method="get">
     <div align="center">
         <input type="text" name="url" id="url" size="50">
 	</div>
@@ -73,97 +73,23 @@
 				}
 				//alert(key + ' is ' + value);
 			});
-			var ul = $('<ul id="response">').appendTo('body');
-			/*var list = "<li> <b>Title:</b> " + response.title + "</li>";
-			list += "<li><b> HTML version: </b>" + response.htmlVersion + "</li>";
-			var containsLogin = response.containsLogin ? "Yes" : "No";
-			list += "<li><b> Contains Login Form: </b>" + containsLogin + "</li>";*/
-			$('#response').append(list);
+			var ul = $('<ul id="pageDetails">').appendTo('body');
+			$('#pageDetails').append(list);
 		});
 	});
 
 	$('#analyseLinks').on('click', function(e) {
 		e.preventDefault();
 		callAction('/linkDetails', function (response) {
-			var list = "";
+			var rows = "<tr><th>Link</th><th>Secure</th></tr>";
 			$.each(response, function(key, value) {
-				if(typeof value == 'object'){
-					var innerList = "<ul>";
-					$.each(value, function(ckey, cvalue) {
-					innerList += "<li><b> " + ckey + ": </b>" + cvalue + "</li>";
-					})
-					list += "<li><b> " + key + ": </b>" + innerList + "</ul>" + "</li>";
-				}else {
-				list += "<li><b> " + key + ": </b>" + value + "</li>";
-				}
-				//alert(key + ' is ' + value);
+				rows += "<tr><td> " + key + "</td><td>" + value + "</td>";
 			});
-			var ul = $('<ul id="response">').appendTo('body');
-			/*var list = "<li> <b>Title:</b> " + response.title + "</li>";
-			list += "<li><b> HTML version: </b>" + response.htmlVersion + "</li>";
-			var containsLogin = response.containsLogin ? "Yes" : "No";
-			list += "<li><b> Contains Login Form: </b>" + containsLogin + "</li>";*/
-			$('#response').append(list);
+			var ul = $('<table id="linkDetails" border="1">').appendTo('body');
+			$('#linkDetails').append(rows);
 		});
 	});
-	/*$('#queryPageDetails').on('submit',
-
-		function(event) {
-			var url = $('#url').val();
-			if(url.length > 0){
-			jQuery.validator.setDefaults({
-  				debug: true,
-  				success: "valid"
-			});
-			$( "#myform" ).validate({
-			  rules: {
-				field: {
-				  required: true,
-				  url: true
-				}
-			  }
-			});
-			var data = 'url='
-					+ encodeURIComponent(url);
-			$.ajax({
-				url : $("#queryPageDetails").attr("action"),
-				data : data,
-				type : "GET",
-
-				success : function(response) {
-					console.log(response);
-					displayResponse( response );
-				},
-				error : function(xhr, status, error) {
-					alert(xhr.responseText);
-				}
-			});
-			}
-			return false;
-		});*/
-
-		function displayResponse(response) {
-			var list = "";
-			$.each(response, function(key, value) {
-				if(typeof value == 'object'){
-					var innerList = "<ul>";
-					$.each(value, function(ckey, cvalue) {
-					innerList += "<li><b> " + ckey + ": </b>" + cvalue + "</li>";
-					})
-					list += "<li><b> " + key + ": </b>" + innerList + "</ul>" + "</li>";
-				}else {
-				list += "<li><b> " + key + ": </b>" + value + "</li>";
-				}
-				//alert(key + ' is ' + value);
-			});
-			var ul = $('<ul id="response">').appendTo('body');
-			/*var list = "<li> <b>Title:</b> " + response.title + "</li>";
-			list += "<li><b> HTML version: </b>" + response.htmlVersion + "</li>";
-			var containsLogin = response.containsLogin ? "Yes" : "No";
-			list += "<li><b> Contains Login Form: </b>" + containsLogin + "</li>";*/
-			$('#response').append(list);
-		};
-	});
+});
 </script>
 </body>
 </html>
