@@ -2,7 +2,7 @@
 <html>
 <head lang="en">
     <meta charset="UTF-8">
-    <title>HTML Analyser1</title>
+    <title>HTML Analyser</title>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 	<script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.min.js"></script>
 	<script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/additional-methods.min.js"></script>
@@ -27,19 +27,8 @@
     $(document).ready(function() {
 
 	function callAction(action, callback) {
+
 		var url = $('#url').val();
-		jQuery.validator.setDefaults({
-			debug: true,
-			success: "valid"
-		});
-		$( "#queryPageDetails" ).validate({
-		  rules: {
-			url: {
-			  required: true,
-			  url: true
-			}
-		  }
-		});
 		var data = 'url=' + encodeURIComponent(url);
 		$.ajax({
 			url : action,
@@ -89,6 +78,20 @@
 			$('#linkDetails').append(rows);
 		});
 	});
+
+	jQuery.validator.setDefaults({
+  				debug: true,
+  				success: "valid"
+		});
+	$( "#queryPageDetails" ).validate({
+	  rules: {
+		url: {
+		  required: true,
+		  url: true
+		}
+	  }
+	});
+
 });
 </script>
 </body>
