@@ -1,5 +1,6 @@
-package boot.dao;
+package boot.dao.impl;
 
+import boot.dao.PageDao;
 import boot.excpetion.PageAnalyserException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;

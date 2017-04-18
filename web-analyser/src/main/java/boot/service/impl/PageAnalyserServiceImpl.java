@@ -1,9 +1,11 @@
 package boot.service.impl;
 
 import boot.dao.PageDao;
+import boot.excpetion.PageAnalyserException;
 import boot.model.PageDetails;
 import boot.service.PageAnalyserService;
 import com.google.common.net.InternetDomainName;
+import org.apache.commons.lang3.StringUtils;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.DocumentType;
 import org.jsoup.nodes.Node;
@@ -16,7 +18,6 @@ import java.io.IOException;
 import java.net.*;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Service
@@ -25,7 +26,7 @@ public class PageAnalyserServiceImpl implements PageAnalyserService {
     @Autowired
     private PageDao pageDao;
 
-    public PageDetails getPageDetails(String url) {
+    public PageDetails getPageDetails(final String url) {
         final Document document = pageDao.getPage(url);
         final PageDetails htmlPageDetails = new PageDetails();
         htmlPageDetails.setTitle(document.title());
@@ -37,82 +38,108 @@ public class PageAnalyserServiceImpl implements PageAnalyserService {
     }
 
 
-    private String getDomain(final Document document) {
-        URI uri = null;
+    private String getDomain(final String location) {
+        String host = getHost(location);
+        return host != null ? InternetDomainName.from(host).topPrivateDomain().toString() : StringUtils.EMPTY;
+    }
+
+    private String getHost(final String location) {
+        URI uri;
         try {
-            uri = new URI(document.location());
+            uri = new URI(location);
         } catch (URISyntaxException e) {
-            e.printStackTrace();
+            throw new PageAnalyserException(String.format("Unable to determine from: %s", location));
         }
-        return InternetDomainName.from(uri.getHost()).topPrivateDomain().toString();
+        return uri.getHost();
     }
 
     private Map<String, Integer> findHyperLinkCount(final Document document) {
-        document.location();
-        Pattern pattern = Pattern.compile(".*" + getDomain(document) + ".*");
         return document
                 .body()
-                .select("a[href]")
+                .select("a[href],link[href]")
                 .parallelStream()
                 .map(e -> e.attr("href"))
-                .collect(Collectors.groupingBy(e -> pattern.matcher(e).matches() ? "Internal" : "External", Collectors.summingInt(e -> 1)));
+                .filter(e -> !e.startsWith("#"))
+                .collect(Collectors.groupingBy(e -> {
+                    if (getDomain(e).isEmpty() || getDomain(e).equals(getDomain(document.location()))) {
+                        return "Internal";
+                    } else {
+                        return "External";
+                    }
+
+                }, Collectors.summingInt(e -> 1)));
     }
 
+    /**
+     * Forms with only one password input are assumed to be login forms
+     * @param document
+     * @return
+     */
     private boolean containsLoginForm(final Document document) {
         Elements password = document.body().select("input").attr("type", "password");
-        return password.size() > 0;
+        return password
+                .parallelStream()
+                .anyMatch(e -> {
+                    Elements passwordsInForm = e.parent().select("input").attr("type", "password");
+                    return passwordsInForm.size() == 1;
+                });
     }
 
     private Map<String, Integer> findHeadingCount(final Document document) {
         return document
                 .body()
                 .select("h1,h2,h3,h4,h5,h6")
-                .stream()
+                .parallelStream()
                 .collect(Collectors.groupingBy(e -> e.tagName(), Collectors.summingInt(i -> 1)));
     }
 
     private String getHtmlVersion(final Document document) {
         List<Node> nodes = document.childNodes();
-        return nodes.stream().filter(node -> node instanceof DocumentType).map(this::generateHtmlVersion).collect(Collectors.joining());
+        return nodes
+                .parallelStream()
+                .filter(node -> node instanceof DocumentType)
+                .map(this::generateHtmlVersion).collect(Collectors.joining());
     }
 
-    private String generateHtmlVersion(Node node) {
+    private String generateHtmlVersion(final Node node) {
         DocumentType documentType = (DocumentType) node;
         String htmlVersion = documentType.attr("publicid");
         return "".equals(htmlVersion) ? "HTML5" : htmlVersion;
     }
 
     @Override
-    public Map<String, Boolean> getLinkDetails(String url) {
+    public Map<String, Boolean> getLinkDetails(final String url) {
         final Document document = pageDao.getPage(url);
         return document
-                .select("a[href]")
+                .select("a[href],link[href]")
                 .parallelStream()
+                .map(e -> e.attr("href"))
+                .filter(e -> !e.startsWith("#"))
                 .map(p -> {
                     try {
-                        return new URL(p.attr("href"));
+                        return new URL(p.startsWith("/") ? url : p);
                     } catch (MalformedURLException e) {
+                        System.out.println(p);
                         return null;
                     }
                 })
                 .filter(p -> p != null)
                 .collect(Collectors.toMap(
-                p -> p.toString(),
-                p -> {
-                    try {
-                        URLConnection urlConnection = p.openConnection();
-                        if (urlConnection instanceof HttpsURLConnection) {
-                            return true;
-                        }
-                        else if (urlConnection instanceof HttpURLConnection) {
+                        p -> p.toString(),
+                        p -> {
+                            try {
+                                URLConnection urlConnection = p.openConnection();
+                                    if (urlConnection instanceof HttpsURLConnection) {
+                                    return true;
+                                } else if (urlConnection instanceof HttpURLConnection) {
+                                    return false;
+                                }
+                            } catch (IOException e) {
+                                return false;
+                            }
                             return false;
-                        }
-                    } catch (IOException e) {
-                            return false;
-                    }
-                    return false;
-                },
-                (ssl1, ssl2) -> ssl1 || ssl2
+                        },
+                        (ssl1, ssl2) -> ssl1 || ssl2
 
 
         ));

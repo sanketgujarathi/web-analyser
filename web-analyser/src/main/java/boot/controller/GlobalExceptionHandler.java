@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
+import javax.validation.ConstraintViolationException;
 import java.io.IOException;
 
 /**
@@ -15,15 +16,16 @@ import java.io.IOException;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler
+    @ExceptionHandler(PageAnalyserException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<String> handle(PageAnalyserException e){
-         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Unable to process request: " + e.getLocalizedMessage());
+         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Unable to process request: " + e.getMessage());
     }
 
-    @ExceptionHandler
+    @ExceptionHandler(ConstraintViolationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseEntity<String> handle(IOException e){
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Unable to process request: Connectivity Issues");
+    public ResponseEntity<String> handle(ConstraintViolationException e){
+         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Unable to process request: Invalid URL!");
     }
+
 }
