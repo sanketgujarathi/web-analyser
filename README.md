@@ -1,4 +1,4 @@
-# Project Title
+# Web Analyser
 
 Web application that provides results of analysis of HTML web page for a given url
 
