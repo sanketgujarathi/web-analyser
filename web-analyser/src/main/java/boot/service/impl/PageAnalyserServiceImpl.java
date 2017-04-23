@@ -38,11 +38,21 @@ public class PageAnalyserServiceImpl implements PageAnalyserService {
     }
 
 
+    /**
+     * Extracts the domain from a given url string
+     * @param location
+     * @return
+     */
     private String getDomain(final String location) {
         String host = getHost(location);
         return host != null ? InternetDomainName.from(host).topPrivateDomain().toString() : StringUtils.EMPTY;
     }
 
+    /**
+     * Extracts the base host of given url string
+     * @param location
+     * @return
+     */
     private String getHost(final String location) {
         URI uri;
         try {
@@ -53,6 +63,11 @@ public class PageAnalyserServiceImpl implements PageAnalyserService {
         return uri.getHost();
     }
 
+    /**
+     * Cycles through all the hyperlinks in the web page and classifies them as internal or external based on their domain
+     * @param document
+     * @return
+     */
     private Map<String, Integer> findHyperLinkCount(final Document document) {
         return document
                 .body()
@@ -71,7 +86,7 @@ public class PageAnalyserServiceImpl implements PageAnalyserService {
     }
 
     /**
-     * Forms with only one password input are assumed to be login forms
+     * Determins if web page contains a login form. Forms with exactly one password input field are assumed to be login forms
      * @param document
      * @return
      */
@@ -85,6 +100,11 @@ public class PageAnalyserServiceImpl implements PageAnalyserService {
                 });
     }
 
+    /**
+     * Finds the count of each heading tags(h1-h6) in the web page
+     * @param document
+     * @return
+     */
     private Map<String, Integer> findHeadingCount(final Document document) {
         return document
                 .body()
@@ -93,6 +113,11 @@ public class PageAnalyserServiceImpl implements PageAnalyserService {
                 .collect(Collectors.groupingBy(e -> e.tagName(), Collectors.summingInt(i -> 1)));
     }
 
+    /**
+     * Extracts the html version from DTD of the web page
+     * @param document
+     * @return
+     */
     private String getHtmlVersion(final Document document) {
         List<Node> nodes = document.childNodes();
         return nodes
@@ -119,7 +144,6 @@ public class PageAnalyserServiceImpl implements PageAnalyserService {
                     try {
                         return new URL(p.startsWith("/") ? url : p);
                     } catch (MalformedURLException e) {
-                        System.out.println(p);
                         return null;
                     }
                 })

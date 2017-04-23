@@ -124,7 +124,7 @@ public class PageAnalyserControllerTest {
                                 .andExpect(status().isOk())
                                 .andDo(print())
                                 .andExpect(content().string(containsString(mapper.writeValueAsString(pageDetails))));
-                        verify(pageAnalyserService, times(validUrls.size())).getPageDetails(anyString());
+                        verify(pageAnalyserService, atMost(validUrls.size())).getPageDetails(anyString());
                         verify(pageAnalyserService, never()).getLinkDetails(anyString());
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -219,7 +219,7 @@ public class PageAnalyserControllerTest {
                                 .andDo(print())
                                 .andExpect(content().string(containsString(mapper.writeValueAsString(linkDetailMap))));
                         verify(pageAnalyserService, never()).getPageDetails(anyString());
-                        verify(pageAnalyserService, times(validUrls.size())).getLinkDetails(anyString());
+                        verify(pageAnalyserService, atMost(validUrls.size())).getLinkDetails(anyString());
                     } catch (Exception e) {
                         e.printStackTrace();
                     }

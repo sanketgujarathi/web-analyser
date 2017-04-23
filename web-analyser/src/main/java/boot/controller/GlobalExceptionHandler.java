@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 import javax.validation.ConstraintViolationException;
-import java.io.IOException;
 
 /**
  * Created by sanketg on 4/16/2017.
@@ -16,12 +15,22 @@ import java.io.IOException;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
+    /**
+     * Common handler method to elegantly handle exceptions occurred during processing and return appropriate message as response
+     * @param e Exception to handle
+     * @return Error message to be displayed
+     */
     @ExceptionHandler(PageAnalyserException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<String> handle(PageAnalyserException e){
          return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Unable to process request: " + e.getMessage());
     }
 
+    /**
+     * Common handler method to elegantly handle validation errors and return appropriate message as response
+     * @param e
+     * @return
+     */
     @ExceptionHandler(ConstraintViolationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<String> handle(ConstraintViolationException e){

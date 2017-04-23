@@ -7,7 +7,6 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -16,12 +15,13 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.io.IOException;
-import java.net.*;
-import java.util.*;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLConnection;
+import java.net.URLStreamHandler;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
 
@@ -65,7 +65,6 @@ public class PageAnalyserServiceTest {
                         .addElement(new Form()
                                 .addElement(new Input().setType("password"))
                                 .addElement(new Input().setType("password"))));
-        System.out.println(html);
         Document document = Jsoup.parse(html.toString(), VALID_URL);
         when(pageDao.getPage(anyString())).thenReturn(document);
         PageDetails pageDetails = pageAnalyserService.getPageDetails(VALID_URL);
