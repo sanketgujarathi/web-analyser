@@ -1,6 +1,6 @@
 # HTML Analyser
 
-Web application that analyses the HTML tags in web page for a given url and returns the result in the form of a tabular summary.	
+Web application that analyses the HTML tags and hyperlinks in web page for a given url and returns the result in the form of a tabular summary.	
 
 
 ## Getting Started
@@ -13,7 +13,7 @@ JDK 1.8
 Maven 3.0.3
 
 ### Build
-To build the project simply run the following maven command from the location directory of pom.xml file - 
+To build the project run the following maven command from the base project directory - 
 mvn clean package
 
 ### Installing
