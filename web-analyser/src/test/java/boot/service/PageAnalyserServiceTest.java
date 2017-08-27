@@ -30,7 +30,7 @@ import static org.mockito.Mockito.*;
  */
 @RunWith(SpringRunner.class)
 @SpringBootTest
-public class PageAnalyserServiceTest {
+    public class PageAnalyserServiceTest {
 
     public static final String VALID_URL = "https://example.com";
     @MockBean

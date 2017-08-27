@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.net.*;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -147,27 +148,29 @@ public class PageAnalyserServiceImpl implements PageAnalyserService {
                         return null;
                     }
                 })
-                .filter(p -> p != null)
+                .filter(Objects::nonNull)
                 .collect(Collectors.toMap(
                         p -> p.toString(),
-                        p -> {
-                            try {
-                                URLConnection urlConnection = p.openConnection();
-                                    if (urlConnection instanceof HttpsURLConnection) {
-                                    return true;
-                                } else if (urlConnection instanceof HttpURLConnection) {
-                                    return false;
-                                }
-                            } catch (IOException e) {
-                                return false;
-                            }
-                            return false;
-                        },
+                        this::isSecure,
                         (ssl1, ssl2) -> ssl1 || ssl2
 
 
         ));
 
+    }
+
+    private boolean isSecure(URL p) {
+        try {
+            URLConnection urlConnection = p.openConnection();
+                if (urlConnection instanceof HttpsURLConnection) {
+                return true;
+            } else if (urlConnection instanceof HttpURLConnection) {
+                return false;
+            }
+        } catch (IOException e) {
+            return false;
+        }
+        return false;
     }
 
 

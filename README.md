@@ -1,10 +1,10 @@
-# Web Analyser
+# HTML Analyser
 
-Web application that provides results of analysis of HTML web page for a given url
+Web application that analyses of HTML web page for a given url
 
 
 ## Getting Started
-
+	
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
 
 ### Prerequisites
