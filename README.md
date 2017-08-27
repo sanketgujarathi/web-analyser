@@ -1,6 +1,6 @@
 # HTML Analyser
 
-Web application that analyses of HTML web page for a given url
+Web application that analyses the HTML tags in web page for a given url and returns the result in the form of a tabular summary.	
 
 
 ## Getting Started
