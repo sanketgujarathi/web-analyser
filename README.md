@@ -33,7 +33,7 @@ Hit button "Analyse Links" to view results for optinal part of coding challenge
 ## Assumptions
 Input urls of only http and https protocols will be allowed
 Max size length of input url allowed is 2000
-Pages that have a form with exactly one password input field (<input type='password') would be assumed to have a login form
+Pages that have a form with exactly one password input field (<input type='password'>) would be assumed to have a login form
 
 
 
