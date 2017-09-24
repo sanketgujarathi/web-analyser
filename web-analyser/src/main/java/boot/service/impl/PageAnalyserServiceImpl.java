@@ -8,6 +8,7 @@ import com.google.common.net.InternetDomainName;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.DocumentType;
+import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Node;
 import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,7 @@ import java.net.*;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -70,20 +72,14 @@ public class PageAnalyserServiceImpl implements PageAnalyserService {
      * @return
      */
     private Map<String, Integer> findHyperLinkCount(final Document document) {
+        Function<String, String> classifyUrl = e -> getDomain(e).isEmpty() || getDomain(e).equals(getDomain(document.location())) ? "Internal" : "External";
         return document
                 .body()
                 .select("a[href],link[href]")
                 .parallelStream()
                 .map(e -> e.attr("href"))
                 .filter(e -> !e.startsWith("#"))
-                .collect(Collectors.groupingBy(e -> {
-                    if (getDomain(e).isEmpty() || getDomain(e).equals(getDomain(document.location()))) {
-                        return "Internal";
-                    } else {
-                        return "External";
-                    }
-
-                }, Collectors.summingInt(e -> 1)));
+                .collect(Collectors.groupingBy(classifyUrl, Collectors.summingInt(e -> 1)));
     }
 
     /**
@@ -111,7 +107,7 @@ public class PageAnalyserServiceImpl implements PageAnalyserService {
                 .body()
                 .select("h1,h2,h3,h4,h5,h6")
                 .parallelStream()
-                .collect(Collectors.groupingBy(e -> e.tagName(), Collectors.summingInt(i -> 1)));
+                .collect(Collectors.groupingBy(Element::tagName, Collectors.summingInt(i -> 1)));
     }
 
     /**
@@ -136,26 +132,25 @@ public class PageAnalyserServiceImpl implements PageAnalyserService {
     @Override
     public Map<String, Boolean> getLinkDetails(final String url) {
         final Document document = pageDao.getPage(url);
+        Function<String, URL> validUrl = p -> {
+            try {
+                return new URL(p.startsWith("/") ? url : p);
+            } catch (MalformedURLException e) {
+                return null;
+            }
+        };
         return document
                 .select("a[href],link[href]")
                 .parallelStream()
                 .map(e -> e.attr("href"))
                 .filter(e -> !e.startsWith("#"))
-                .map(p -> {
-                    try {
-                        return new URL(p.startsWith("/") ? url : p);
-                    } catch (MalformedURLException e) {
-                        return null;
-                    }
-                })
+                .map(validUrl)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toMap(
-                        p -> p.toString(),
+                        URL::toString,
                         this::isSecure,
                         (ssl1, ssl2) -> ssl1 || ssl2
-
-
-        ));
+                ));
 
     }
 
